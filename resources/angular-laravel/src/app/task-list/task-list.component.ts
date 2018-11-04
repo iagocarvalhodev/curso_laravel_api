@@ -1,3 +1,4 @@
+import { TaskService } from './../task.service';
 import { Component, OnInit } from '@angular/core';
 import { Task } from '../task';
 
@@ -7,21 +8,17 @@ import { Task } from '../task';
   styleUrls: ['./task-list.component.scss']
 })
 export class TaskListComponent implements OnInit {
+  
+  tasks:Array<Task>;
 
-  tasks = [];
+  constructor(private taskService:TaskService) {
 
-  task:Task = {
-    name: '',
-    value: 0,
-    date_launch: '2017-10-01'
-  };
+    // this.taskService.tasks.push(
+    //   {name: 'teste', value: 50, date_launch: '2017-07-07'}
+    // );
+    this.tasks = this.taskService.tasks;
 
-  add(){
-    let task = Object.assign({},this.task);
-    this.tasks.push(task);
-  }
-
-  constructor() { }
+   }
 
   ngOnInit() {
   }
