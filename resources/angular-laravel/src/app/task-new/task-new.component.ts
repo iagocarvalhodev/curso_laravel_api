@@ -15,15 +15,17 @@ export class TaskNewComponent implements OnInit {
     date_launch: '2017-10-01'
   };
 
-  tasks:Array<Task>;
+  // tasks:Array<Task>;
 
   constructor(private taskService:TaskService) {
-    this.tasks = this.taskService.tasks;
+    // this.tasks = this.taskService.tasks;
    }
 
-  add(){
-    let task = Object.assign({},this.task);
-    this.tasks.push(task);
+
+  add() {
+    this.taskService.createTask(this.task).subscribe(data => {
+      console.log('deu', data);
+    });
   }
 
   ngOnInit() {
