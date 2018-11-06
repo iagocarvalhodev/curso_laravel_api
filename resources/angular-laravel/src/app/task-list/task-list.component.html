@@ -2,5 +2,7 @@
 <ul>
   <li *ngFor="let item of tasks" >
     {{item.name}} --- {{ item.value | formatCurrency }} --- {{ item.date_launch | formatDate }}
+
+    <button (click)="dell(item.id)">Delete</button>
   </li>
 </ul>

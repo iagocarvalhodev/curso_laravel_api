@@ -20,6 +20,14 @@ export class TaskListComponent implements OnInit {
 
    }
 
+   dell(id) {
+      this.taskService.deleteTask(id).subscribe(data => {
+        console.log('deletou');
+      });
+      this.taskService.getTasks()
+          .subscribe( data => this.tasks = data);
+   }
+
   ngOnInit() {
 
     this.taskService.getTasks()

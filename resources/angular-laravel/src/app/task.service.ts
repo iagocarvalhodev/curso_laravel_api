@@ -24,4 +24,8 @@ export class TaskService {
     return this.http.post<Task[]>('http://localhost:8000/tasks', task);
   }
 
+  deleteTask(id) {
+    return this.http.delete('http://localhost:8000/tasks/' + id);
+  }
+
 }

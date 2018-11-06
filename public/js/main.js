@@ -130,7 +130,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppModule", function() { return AppModule; });
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _angular_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/http */ "./node_modules/@angular/http/fesm5/http.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
 /* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/forms */ "./node_modules/@angular/forms/fesm5/forms.js");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 /* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
@@ -178,7 +178,7 @@ var AppModule = /** @class */ (function () {
                 _angular_platform_browser__WEBPACK_IMPORTED_MODULE_0__["BrowserModule"],
                 _angular_forms__WEBPACK_IMPORTED_MODULE_3__["FormsModule"],
                 _app_routing_module__WEBPACK_IMPORTED_MODULE_5__["AppRoutingModule"],
-                _angular_http__WEBPACK_IMPORTED_MODULE_2__["HttpModule"],
+                _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClientModule"],
                 _angular_router__WEBPACK_IMPORTED_MODULE_4__["RouterModule"].forRoot(appRoutes)
             ],
             providers: [_task_service__WEBPACK_IMPORTED_MODULE_11__["TaskService"]],
@@ -279,7 +279,7 @@ var FormatDatePipe = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n<ul>\n  <li *ngFor=\"let item of tasks\" >\n    {{item.name}} --- {{ item.value | formatCurrency }} --- {{ item.date_launch | formatDate }}\n  </li>\n</ul>\n"
+module.exports = "\n<ul>\n  <li *ngFor=\"let item of tasks\" >\n    {{item.name}} --- {{ item.value | formatCurrency }} --- {{ item.date_launch | formatDate }}\n\n    <button (click)=\"dell(item.id)\">Delete</button>\n  </li>\n</ul>\n"
 
 /***/ }),
 
@@ -319,13 +319,24 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 var TaskListComponent = /** @class */ (function () {
     function TaskListComponent(taskService) {
-        this.taskService = taskService;
         // this.taskService.tasks.push(
         //   {name: 'teste', value: 50, date_launch: '2017-07-07'}
         // );
-        this.tasks = this.taskService.tasks;
+        // this.tasks = this.taskService.tasks;
+        this.taskService = taskService;
     }
+    TaskListComponent.prototype.dell = function (id) {
+        var _this = this;
+        this.taskService.deleteTask(id).subscribe(function (data) {
+            console.log('deletou');
+        });
+        this.taskService.getTasks()
+            .subscribe(function (data) { return _this.tasks = data; });
+    };
     TaskListComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        this.taskService.getTasks()
+            .subscribe(function (data) { return _this.tasks = data; });
     };
     TaskListComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
@@ -388,6 +399,7 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 var TaskNewComponent = /** @class */ (function () {
+    // tasks:Array<Task>;
     function TaskNewComponent(taskService) {
         this.taskService = taskService;
         this.task = {
@@ -395,11 +407,12 @@ var TaskNewComponent = /** @class */ (function () {
             value: 0,
             date_launch: '2017-10-01'
         };
-        this.tasks = this.taskService.tasks;
+        // this.tasks = this.taskService.tasks;
     }
     TaskNewComponent.prototype.add = function () {
-        var task = Object.assign({}, this.task);
-        this.tasks.push(task);
+        this.taskService.createTask(this.task).subscribe(function (data) {
+            console.log('deu', data);
+        });
     };
     TaskNewComponent.prototype.ngOnInit = function () {
     };
@@ -429,7 +442,7 @@ var TaskNewComponent = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TaskService", function() { return TaskService; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
-/* harmony import */ var _angular_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/http */ "./node_modules/@angular/http/fesm5/http.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -442,21 +455,24 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 var TaskService = /** @class */ (function () {
+    // tasks:Array<Task> = [];
     function TaskService(http) {
         this.http = http;
-        this.tasks = [];
-        getTasks();
-        {
-            this.http.get('http://localhost:8000/tasks')
-                .toPromise();
-            then(function (response) { return response.json(); });
-        }
     }
+    TaskService.prototype.getTasks = function () {
+        return this.http.get('http://localhost:8000/tasks');
+    };
+    TaskService.prototype.createTask = function (task) {
+        return this.http.post('http://localhost:8000/tasks', task);
+    };
+    TaskService.prototype.deleteTask = function (id) {
+        return this.http.delete('http://localhost:8000/tasks/' + id);
+    };
     TaskService = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"])({
             providedIn: 'root'
         }),
-        __metadata("design:paramtypes", [_angular_http__WEBPACK_IMPORTED_MODULE_1__["Http"]])
+        __metadata("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpClient"]])
     ], TaskService);
     return TaskService;
 }());
